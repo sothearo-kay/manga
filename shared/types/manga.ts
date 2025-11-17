@@ -19,3 +19,27 @@ export interface MangaSearchResponse {
   currentPage: number;
   results: MangaSearchResult[];
 }
+
+export interface MangaChapter {
+  id: string;
+  title: string;
+  releaseDate: string | null;
+}
+
+export interface MangaInfo {
+  id: string;
+  title: string;
+  altTitles: MangaAltTitle[] | null;
+  genres: string[] | null;
+  headerForImage: string | null;
+  image: string | null;
+  chapters: MangaChapter[];
+}
+
+export interface MangaPage {
+  page: number;
+  img: string;
+  headerForImage: string;
+}
+
+export type MangaChapterPages = MangaPage[];

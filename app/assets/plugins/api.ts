@@ -1,5 +1,5 @@
 import type { FetchOptions } from "ofetch";
-import { mangaRepository } from "~/assets/repositories/manga";
+import { mangaRepository } from "~/assets/repositories";
 
 export default defineNuxtPlugin(() => {
   const defaultHeaders = {
