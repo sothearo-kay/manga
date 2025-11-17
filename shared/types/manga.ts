@@ -20,20 +20,29 @@ export interface MangaSearchResponse {
   results: MangaSearchResult[];
 }
 
+export interface MangaDescription {
+  [languageCode: string]: string;
+}
+
 export interface MangaChapter {
   id: string;
   title: string;
-  releaseDate: string | null;
+  chapterNumber: string;
+  volumeNumber: string;
+  pages: number;
 }
 
 export interface MangaInfo {
   id: string;
   title: string;
-  altTitles: MangaAltTitle[] | null;
-  genres: string[] | null;
-  headerForImage: string | null;
-  image: string | null;
+  altTitles: MangaAltTitle[];
+  description: MangaDescription;
+  genres: string[];
+  themes: string[];
+  status: string;
+  releaseDate: number;
   chapters: MangaChapter[];
+  image: string;
 }
 
 export interface MangaPage {

@@ -53,4 +53,8 @@ export default defineNuxtConfig({
       preload: true,
     },
   },
+
+  image: {
+    domains: ["mangadex.org"],
+  },
 });
