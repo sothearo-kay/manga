@@ -7,9 +7,7 @@ export function mangaRepository(fetch: $Fetch) {
     },
 
     info: (id: string) => {
-      return fetch<MangaInfo>("/mangadex/info", {
-        query: { id },
-      });
+      return fetch<MangaInfo>(`/mangadex/info/${id}`);
     },
 
     read: (chapterId: string) => {
