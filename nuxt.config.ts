@@ -10,6 +10,10 @@ export default defineNuxtConfig({
 
   css: ["~/assets/css/main.css"],
 
+  runtimeConfig: {
+    apiBaseUrl: "",
+  },
+
   compatibilityDate: "2025-07-15",
 
   vite: {
