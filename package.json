@@ -19,8 +19,10 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.2.0",
+    "@iconify-json/lucide": "^1.2.73",
     "@nuxt/eslint": "^1.10.0",
     "@nuxt/fonts": "^0.12.1",
+    "@nuxt/icon": "^2.1.0",
     "@nuxt/image": "^2.0.0",
     "@tailwindcss/vite": "^4.1.17",
     "@vueuse/core": "^14.0.0",

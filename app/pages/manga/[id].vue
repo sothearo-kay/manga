@@ -1,35 +1,8 @@
 <script setup lang="ts">
 const route = useRoute();
-const { $api } = useNuxtApp();
-
 const mangaId = route.params.id as string;
 
-const { data: result, status } = await useAsyncData(
-  `manga-${mangaId}`,
-  () => $api.manga.info(mangaId),
-);
-
-const manga = computed(() => result.value?.data);
-const error = computed(() => result.value?.error);
-
-const uniqueChapters = computed(() => {
-  if (!manga.value?.chapters)
-    return [];
-
-  const seen = new Map();
-
-  for (const chapter of manga.value.chapters) {
-    const key = `${chapter.volumeNumber}-${chapter.chapterNumber}`;
-    const existing = seen.get(key);
-
-    // Keep the chapter with more pages, or the first one if pages are equal
-    if (!existing || chapter.pages > existing.pages) {
-      seen.set(key, chapter);
-    }
-  }
-
-  return Array.from(seen.values());
-});
+const { manga, error, status, uniqueChapters } = await useManga(mangaId);
 </script>
 
 <template>
@@ -52,9 +25,11 @@ const uniqueChapters = computed(() => {
           <NuxtImg
             :src="manga.image"
             :alt="manga.title"
+            width="256"
+            height="384"
+            class="h-96 w-64 rounded-lg object-cover shadow-lg"
             placeholder
             loading="lazy"
-            class="h-96 w-64 rounded-lg object-cover shadow-lg"
           />
         </div>
 
@@ -112,7 +87,7 @@ const uniqueChapters = computed(() => {
           <NuxtLink
             v-for="chapter in uniqueChapters"
             :key="chapter.id"
-            :to="`/read/${chapter.id}`"
+            :to="`/read/${chapter.id}?mangaId=${mangaId}`"
             class="flex items-center justify-between px-6 py-4 transition-colors hover:bg-border/50"
           >
             <div class="flex items-center gap-4">
@@ -120,7 +95,7 @@ const uniqueChapters = computed(() => {
                 Ch. {{ chapter.chapterNumber }}
               </span>
               <div class="flex flex-col">
-                <span class="font-body">{{ chapter.title }}</span>
+                <span class="font-body capitalize">{{ chapter.title.toLowerCase() }}</span>
                 <span class="text-xs text-muted">Volume {{ chapter.volumeNumber }}</span>
               </div>
             </div>

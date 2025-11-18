@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxt/fonts",
     "@nuxt/image",
+    "@nuxt/icon",
     "@vueuse/nuxt",
   ],
 
@@ -44,7 +45,7 @@ export default defineNuxtConfig({
       {
         name: "Open Sans",
         provider: "google",
-        weights: [400],
+        weights: [400, 500],
       },
     ],
     defaults: {
@@ -55,6 +56,10 @@ export default defineNuxtConfig({
   },
 
   image: {
-    domains: ["mangadex.org"],
+    domains: [
+      "mangadex.org",
+      "uploads.mangadex.org",
+      "mangadex.network",
+    ],
   },
 });
