@@ -8,7 +8,7 @@ export default defineNuxtPlugin(() => {
   };
 
   const fetchOptions: FetchOptions = {
-    baseURL: "/api",
+    baseURL: "/api/mangahere",
     onRequest({ options }) {
       options.headers = { ...defaultHeaders, ...options.headers };
     },
