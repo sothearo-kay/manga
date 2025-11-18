@@ -34,7 +34,7 @@ const { manga, error, status, uniqueChapters } = await useManga(mangaId);
         </div>
 
         <div class="flex-1">
-          <h1 class="font-heading mb-4 text-4xl font-bold">
+          <h1 class="mb-4 text-4xl font-bold">
             {{ manga.title }}
           </h1>
 
