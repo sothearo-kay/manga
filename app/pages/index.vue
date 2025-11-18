@@ -82,16 +82,14 @@ const mangas = computed(() => data.value?.data?.results ?? []);
           class="group flex flex-col"
         >
           <div class="mb-3 overflow-hidden rounded-lg">
-            <ClientOnly>
-              <img
-                :src="`/api/image?url=${encodeURIComponent(manga.image)}`"
-                :alt="manga.title"
-                width="256"
-                height="384"
-                class="aspect-[2/3] w-full object-cover transition-transform group-hover:scale-105"
-                loading="lazy"
-              >
-            </ClientOnly>
+            <img
+              :src="`/api/image?url=${encodeURIComponent(manga.image)}`"
+              :alt="manga.title"
+              width="256"
+              height="384"
+              class="aspect-[2/3] w-full object-cover transition-transform group-hover:scale-105"
+              loading="lazy"
+            >
           </div>
           <h2 class="font-heading line-clamp-2 text-sm leading-snug font-semibold">
             {{ manga.title }}

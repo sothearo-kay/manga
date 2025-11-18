@@ -11,7 +11,7 @@ export function mangaRepository(fetch: $Fetch) {
     },
 
     read: async (chapterId: string) => {
-      return tryCatch(fetch<MangaChapterPages>(`/read/${chapterId}`));
+      return tryCatch(fetch<MangaChapterPages>("read", { query: { chapterId } }));
     },
   };
 }

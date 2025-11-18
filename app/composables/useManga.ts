@@ -16,7 +16,7 @@ export async function useManga(mangaId: string) {
     const seen = new Map();
 
     for (const chapter of manga.value.chapters) {
-      const key = `${chapter.volumeNumber}-${chapter.chapterNumber}`;
+      const key = `${chapter.id}-${chapter.title}`;
       const existing = seen.get(key);
 
       // Keep the chapter with more pages, or the first one if pages are equal

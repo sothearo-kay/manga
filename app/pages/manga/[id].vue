@@ -19,18 +19,17 @@ const { manga, error, status, uniqueChapters } = await useManga(mangaId);
       The manga you're looking for doesn't exist.
     </StatusBlock>
 
-    <div v-else class="container py-10">
+    <div v-else>
       <div class="mb-12 flex flex-col gap-8 md:flex-row">
         <div class="flex-shrink-0 max-md:mx-auto">
-          <NuxtImg
-            :src="manga.image"
+          <img
+            :src="`/api/image?url=${encodeURIComponent(manga.image)}`"
             :alt="manga.title"
             width="256"
             height="384"
             class="h-96 w-64 rounded-lg object-cover shadow-lg"
-            placeholder
             loading="lazy"
-          />
+          >
         </div>
 
         <div class="flex-1">
@@ -52,27 +51,11 @@ const { manga, error, status, uniqueChapters } = await useManga(mangaId);
             <span class="rounded-full bg-border px-3 py-1 text-sm">
               {{ manga.status }}
             </span>
-            <span class="text-sm text-muted">{{ manga.releaseDate }}</span>
           </div>
 
-          <p v-if="manga.description.en" class="font-body mb-4 text-sm leading-relaxed">
-            {{ manga.description.en }}
+          <p class="font-body mb-4 text-sm leading-relaxed">
+            {{ manga.description }}
           </p>
-
-          <div v-if="manga.altTitles.length" class="mb-4">
-            <h3 class="font-heading mb-2 text-sm font-semibold text-muted">
-              Alternative Titles:
-            </h3>
-            <div class="space-y-1">
-              <p
-                v-for="(altTitle, idx) in manga.altTitles.slice(0, 3)"
-                :key="idx"
-                class="text-sm text-muted"
-              >
-                {{ Object.values(altTitle)[0] }}
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -85,14 +68,14 @@ const { manga, error, status, uniqueChapters } = await useManga(mangaId);
 
         <div class="divide-y divide-border">
           <NuxtLink
-            v-for="chapter in uniqueChapters"
+            v-for="(chapter, idx) in uniqueChapters"
             :key="chapter.id"
             :to="`/read/${chapter.id}?mangaId=${mangaId}`"
             class="flex items-center justify-between px-6 py-4 transition-colors hover:bg-border/50"
           >
             <div class="flex items-center gap-4">
               <span class="w-16 font-mono text-sm text-muted">
-                Ch. {{ chapter.chapterNumber }}
+                {{ idx + 1 }}
               </span>
               <div class="flex flex-col">
                 <span class="font-body capitalize">{{ chapter.title.toLowerCase() }}</span>

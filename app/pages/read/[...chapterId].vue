@@ -6,12 +6,15 @@ definePageMeta({
 const route = useRoute();
 const { $api } = useNuxtApp();
 
-const chapterId = route.params.chapterId as string;
+const chapterId = Array.isArray(route.params.chapterId)
+  ? route.params.chapterId.join("/")
+  : route.params.chapterId;
+
 const mangaId = route.query.mangaId as string;
 
 const { data: result, status } = await useAsyncData(
   `chapter-${chapterId}`,
-  () => $api.manga.read(chapterId),
+  () => $api.manga.read(chapterId!),
 );
 
 const pages = computed(() => result.value?.data);
@@ -158,15 +161,14 @@ function toggleReadingMode() {
             :key="page.page"
             class="relative w-full"
           >
-            <NuxtImg
-              :src="page.img"
+            <img
+              :src="`/api/image?url=${encodeURIComponent(page.img)}`"
               :alt="`Page ${page.page}`"
               width="800"
               height="1200"
               class="h-auto w-full"
               loading="lazy"
-              placeholder
-            />
+            >
           </div>
         </div>
 
@@ -185,15 +187,13 @@ function toggleReadingMode() {
 
       <div v-else-if="readingMode === 'manga' && currentPage" class="container flex max-w-3xl flex-col">
         <div class="flex-1">
-          <NuxtImg
+          <img
             :key="currentPage.page"
-            :src="currentPage.img"
+            :src="`/api/image?url=${encodeURIComponent(currentPage.img)}`"
             :alt="`Page ${currentPage.page}`"
             class="aspect-square h-full object-contain"
-            sizes="100vw"
             loading="lazy"
-            placeholder
-          />
+          >
         </div>
 
         <div class="mt-10 flex items-center justify-center gap-3 text-sm text-muted">

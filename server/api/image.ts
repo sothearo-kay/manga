@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
   const url = getQuery(event).url as string;
+
   if (!url)
     return sendError(event, createError({ statusCode: 400, statusMessage: "Missing url" }));
 
