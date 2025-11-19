@@ -82,7 +82,7 @@ watch(data, (newData) => {
 </script>
 
 <template>
-  <div class="min-h-screen">
+  <div>
     <div>
       <h1 class="font-heading mb-2 text-4xl font-bold">
         Manga Reader
