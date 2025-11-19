@@ -1,34 +1,34 @@
+export const runtime = "edge";
+
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
   const url = query.url as string;
-  const referer = query.referer as string;
+  const referer = query.referer as string | undefined;
 
-  if (!url)
-    return sendError(event, createError({ statusCode: 400, statusMessage: "Missing url" }));
+  if (!url) {
+    throw createError({ statusCode: 400, statusMessage: "Missing url" });
+  }
 
   try {
-    const response = await $fetch<ArrayBuffer>(url, {
-      method: "GET",
-      responseType: "arrayBuffer",
+    const res = await fetch(url, {
       headers: {
-        "Referer": referer,
+        ...(referer ? { Referer: referer } : {}),
         "User-Agent": "Mozilla/5.0",
       },
     });
 
-    const type = url.endsWith(".png")
-      ? "image/png"
-      : url.endsWith(".gif")
-        ? "image/gif"
-        : "image/jpeg";
+    if (!res.ok) {
+      throw createError({ statusCode: res.status, statusMessage: "Failed to fetch image" });
+    }
 
-    setHeader(event, "Content-Type", type);
-    setHeader(event, "Cache-Control", "public, max-age=3600");
+    const contentType = res.headers.get("Content-Type") ?? "image/jpeg";
 
-    return new Uint8Array(response);
+    setHeader(event, "Content-Type", contentType);
+    setHeader(event, "Cache-Control", "public, s-maxage=86400, stale-while-revalidate=2592000");
+
+    return res.body;
   }
-  catch (err) {
-    console.error("Proxy error:", err);
+  catch {
     throw createError({ statusCode: 500, statusMessage: "Proxy image fetch failed" });
   }
 });
