@@ -5,24 +5,80 @@ const router = useRouter();
 
 const searchQuery = ref((route.query.q as string) || "");
 const debouncedQuery = refDebounced(searchQuery, 500);
+const loadMoreTrigger = useTemplateRef<HTMLDivElement>("loadMoreTrigger");
 
-const { data, execute, status } = useAsyncData(
-  () => `manga-search-${debouncedQuery.value}`,
-  () => $api.manga.search(debouncedQuery.value),
+const pagination = reactive({
+  currentPage: 1,
+  mangas: [] as MangaSearchResult[],
+  hasNextPage: false,
+  isLoadingMore: false,
+});
+
+const { data, execute, status } = await useAsyncData(
+  "manga-search",
+  () => $api.manga.search(searchQuery.value, pagination.currentPage),
   { immediate: !!searchQuery.value.trim() },
 );
+
+useIntersectionObserver(
+  loadMoreTrigger,
+  async (entries) => {
+    const [entry] = entries;
+    const canLoadMore
+      = entry?.isIntersecting
+        && pagination.hasNextPage
+        && !pagination.isLoadingMore
+        && status.value !== "pending";
+
+    if (canLoadMore) {
+      pagination.isLoadingMore = true;
+      pagination.currentPage++;
+      await execute();
+    }
+  },
+  { rootMargin: "200px" },
+);
+
+const mangas = computed(() => pagination.mangas);
 
 watch(searchQuery, (query) => {
   router.replace({ query: { q: query || undefined } });
 });
 
-watch(debouncedQuery, (query) => {
+watch(debouncedQuery, async (query) => {
   if (query.trim()) {
-    execute();
+    Object.assign(pagination, {
+      currentPage: 1,
+      mangas: [],
+      hasNextPage: false,
+      isLoadingMore: false,
+    });
+    await execute();
   }
 });
 
-const mangas = computed(() => data.value?.data?.results ?? []);
+watch(data, (newData) => {
+  if (newData?.data) {
+    const { results = [], hasNextPage = false } = newData.data;
+
+    // Handle empty results on pagination (API bug workaround)
+    if (pagination.currentPage > 1 && results.length === 0) {
+      pagination.hasNextPage = false;
+      pagination.isLoadingMore = false;
+      return;
+    }
+
+    if (pagination.currentPage === 1) {
+      pagination.mangas = results;
+    }
+    else {
+      pagination.mangas.push(...results);
+    }
+
+    pagination.hasNextPage = hasNextPage;
+    pagination.isLoadingMore = false;
+  }
+}, { immediate: true });
 </script>
 
 <template>
@@ -50,7 +106,7 @@ const mangas = computed(() => data.value?.data?.results ?? []);
     </div>
 
     <div class="mt-10">
-      <div v-if="status === 'pending'" class="flex flex-col items-center justify-center py-20">
+      <div v-if="status === 'pending' && pagination.currentPage === 1 && !mangas.length" class="flex flex-col items-center justify-center py-20">
         <div class="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-border border-t-foreground" />
         <p class="text-sm text-muted">
           Searching...
@@ -64,7 +120,7 @@ const mangas = computed(() => data.value?.data?.results ?? []);
         </p>
       </div>
 
-      <div v-else-if="!mangas.length" class="flex flex-col items-center justify-center py-20 text-center">
+      <div v-else-if="!mangas.length && status !== 'pending'" class="flex flex-col items-center justify-center py-20 text-center">
         <Icon name="lucide:search-x" class="mb-4 h-16 w-16 text-muted" />
         <p class="mb-2 font-medium">
           No manga found
@@ -74,27 +130,39 @@ const mangas = computed(() => data.value?.data?.results ?? []);
         </p>
       </div>
 
-      <div v-else class="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-6">
-        <NuxtLink
-          v-for="manga in mangas"
-          :key="manga.id"
-          :to="`/manga/${manga.id}`"
-          class="group flex flex-col"
-        >
-          <div class="mb-3 overflow-hidden rounded-lg">
-            <img
-              :src="`/api/image?url=${encodeURIComponent(manga.image)}`"
-              :alt="manga.title"
-              width="256"
-              height="384"
-              class="aspect-[2/3] w-full object-cover transition-transform group-hover:scale-105"
-              loading="lazy"
-            >
+      <div v-else>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-6">
+          <NuxtLink
+            v-for="manga in mangas"
+            :key="manga.id"
+            :to="`/manga/${manga.id}`"
+            class="group flex flex-col"
+          >
+            <div class="mb-2 overflow-hidden rounded-lg">
+              <Image
+                :src="`/api/image?url=${encodeURIComponent(manga.image)}&referer=${encodeURIComponent(manga.headerForImage.Referer)}`"
+                :alt="manga.title"
+                width="256"
+                height="384"
+                class="aspect-[2/3] object-cover"
+              />
+            </div>
+            <h2 class="font-heading line-clamp-2 text-sm leading-snug font-semibold">
+              {{ manga.title }}
+            </h2>
+          </NuxtLink>
+        </div>
+
+        <div ref="loadMoreTrigger" class="py-8">
+          <div v-if="pagination.isLoadingMore" class="flex justify-center">
+            <div class="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-foreground" />
           </div>
-          <h2 class="font-heading line-clamp-2 text-sm leading-snug font-semibold">
-            {{ manga.title }}
-          </h2>
-        </NuxtLink>
+          <div v-else-if="!pagination.hasNextPage && mangas.length > 0" class="flex justify-center">
+            <p class="text-sm text-muted">
+              You've reached the end of the results
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

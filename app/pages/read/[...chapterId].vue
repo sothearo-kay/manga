@@ -20,14 +20,11 @@ const { data: result, status } = await useAsyncData(
 const pages = computed(() => result.value?.data);
 const error = computed(() => result.value?.error);
 
-const { uniqueChapters } = await useManga(mangaId);
+const { manga } = await useManga(mangaId);
 
 const chapterNav = computed(() => {
-  const sorted = [...uniqueChapters.value].sort((a, b) => {
-    if (a.volumeNumber !== b.volumeNumber) {
-      return Number(a.volumeNumber) - Number(b.volumeNumber);
-    }
-    return Number(a.chapterNumber) - Number(b.chapterNumber);
+  const sorted = [...(manga.value?.chapters ?? [])].sort((a, b) => {
+    return getChapterNumber(a) - getChapterNumber(b);
   });
 
   const index = sorted.findIndex(ch => ch.id === chapterId);
@@ -80,6 +77,11 @@ function toggleReadingMode() {
   readingMode.value = readingMode.value === "manga" ? "manhwa" : "manga";
   currentPageIndex.value = 0;
 }
+
+function getChapterNumber(chapter: MangaChapter) {
+  const match = chapter.id.match(/c(\d+)/i);
+  return match ? Number(match[1]) : 0;
+}
 </script>
 
 <template>
@@ -103,7 +105,7 @@ function toggleReadingMode() {
             <Tooltip text="Back to manga" side="bottom">
               <NuxtLink
                 :to="`/manga/${mangaId}`"
-                class="flex size-12 items-center justify-center rounded-full glass-button"
+                class="flex size-12 glass-button items-center justify-center rounded-full"
               >
                 <Icon name="lucide:chevron-left" class="h-6 w-6" />
               </NuxtLink>
@@ -115,7 +117,7 @@ function toggleReadingMode() {
               {{ currentPageIndex + 1 }} / {{ pages.length }}
             </div>
             <div v-if="chapterNav.current" class="text-xs text-muted">
-              Ch. {{ chapterNav.current.chapterNumber }}
+              Ch. {{ getChapterNumber(chapterNav.current) }}
             </div>
           </div>
 
@@ -123,7 +125,7 @@ function toggleReadingMode() {
             <Tooltip v-if="chapterNav.prev" text="Previous chapter" side="bottom">
               <NuxtLink
                 :to="`/read/${chapterNav.prev.id}?mangaId=${mangaId}`"
-                class="flex size-12 items-center justify-center rounded-full glass-button"
+                class="flex size-12 glass-button items-center justify-center rounded-full"
               >
                 <Icon name="lucide:arrow-left" class="h-5 w-5" />
               </NuxtLink>
@@ -132,7 +134,7 @@ function toggleReadingMode() {
             <Tooltip v-if="chapterNav.next" text="Next chapter" side="bottom">
               <NuxtLink
                 :to="`/read/${chapterNav.next.id}?mangaId=${mangaId}`"
-                class="flex size-12 items-center justify-center rounded-full glass-button"
+                class="flex size-12 glass-button items-center justify-center rounded-full"
               >
                 <Icon name="lucide:arrow-right" class="h-5 w-5" />
               </NuxtLink>
@@ -141,7 +143,7 @@ function toggleReadingMode() {
             <Tooltip :text="readingMode === 'manga' ? 'Switch to scroll mode' : 'Switch to paged mode'" side="bottom">
               <button
                 type="button"
-                class="flex size-12 items-center justify-center rounded-full glass-button"
+                class="flex size-12 glass-button items-center justify-center rounded-full"
                 @click="toggleReadingMode"
               >
                 <Icon
@@ -162,7 +164,7 @@ function toggleReadingMode() {
             class="relative w-full"
           >
             <img
-              :src="`/api/image?url=${encodeURIComponent(page.img)}`"
+              :src="`/api/image?url=${encodeURIComponent(page.img)}&referer=${encodeURIComponent(page.headerForImage.Referer)}`"
               :alt="`Page ${page.page}`"
               width="800"
               height="1200"
@@ -189,7 +191,7 @@ function toggleReadingMode() {
         <div class="flex-1">
           <img
             :key="currentPage.page"
-            :src="`/api/image?url=${encodeURIComponent(currentPage.img)}`"
+            :src="`/api/image?url=${encodeURIComponent(currentPage.img)}&referer=${encodeURIComponent(currentPage.headerForImage.Referer)}`"
             :alt="`Page ${currentPage.page}`"
             class="aspect-square h-full object-contain"
             loading="lazy"

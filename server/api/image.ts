@@ -1,5 +1,7 @@
 export default defineEventHandler(async (event) => {
-  const url = getQuery(event).url as string;
+  const query = getQuery(event);
+  const url = query.url as string;
+  const referer = query.referer as string;
 
   if (!url)
     return sendError(event, createError({ statusCode: 400, statusMessage: "Missing url" }));
@@ -9,7 +11,7 @@ export default defineEventHandler(async (event) => {
       method: "GET",
       responseType: "arrayBuffer",
       headers: {
-        "Referer": "http://www.mangahere.cc",
+        "Referer": referer,
         "User-Agent": "Mozilla/5.0",
       },
     });

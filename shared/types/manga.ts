@@ -1,13 +1,11 @@
-export interface MangaAltTitle {
-  [languageCode: string]: string;
+export interface RefererHeader {
+  Referer: string;
 }
 
 export interface MangaSearchResult {
   id: string;
   title: string;
-  headerForImage: {
-    Referer: string;
-  };
+  headerForImage: RefererHeader;
   image: string;
   description: string;
   status: string;
@@ -29,9 +27,7 @@ export interface MangaInfo {
   id: string;
   title: string;
   description: string;
-  headers: {
-    Referer: string;
-  };
+  headers: RefererHeader;
   image: string;
   genres: string[];
   status: string;
@@ -43,7 +39,7 @@ export interface MangaInfo {
 export interface MangaPage {
   page: number;
   img: string;
-  headerForImage: string;
+  headerForImage: RefererHeader;
 }
 
 export type MangaChapterPages = MangaPage[];

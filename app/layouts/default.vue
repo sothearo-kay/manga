@@ -4,7 +4,7 @@
       <div class="container flex h-full items-center">
         <NuxtLink to="/">
           <h1 class="text-2xl font-bold">
-            Manga
+            Mangaread
           </h1>
         </NuxtLink>
       </div>
