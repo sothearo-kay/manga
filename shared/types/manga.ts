@@ -5,44 +5,39 @@ export interface MangaAltTitle {
 export interface MangaSearchResult {
   id: string;
   title: string;
-  altTitles: MangaAltTitle[];
-  description?: string;
-  status: string;
-  releaseDate?: number;
-  contentRating: string;
-  lastVolume?: string;
-  lastChapter?: string;
+  headerForImage: {
+    Referer: string;
+  };
   image: string;
+  description: string;
+  status: string;
 }
 
 export interface MangaSearchResponse {
   currentPage: number;
+  hasNextPage: boolean;
   results: MangaSearchResult[];
-}
-
-export interface MangaDescription {
-  [languageCode: string]: string;
 }
 
 export interface MangaChapter {
   id: string;
   title: string;
-  chapterNumber: string;
-  volumeNumber: string;
-  pages: number;
+  releasedDate: string;
 }
 
 export interface MangaInfo {
   id: string;
   title: string;
-  altTitles: MangaAltTitle[];
-  description: MangaDescription;
-  genres: string[];
-  themes: string[];
-  status: string;
-  releaseDate: number;
-  chapters: MangaChapter[];
+  description: string;
+  headers: {
+    Referer: string;
+  };
   image: string;
+  genres: string[];
+  status: string;
+  rating: number;
+  authors: string[];
+  chapters: MangaChapter[];
 }
 
 export interface MangaPage {

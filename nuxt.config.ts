@@ -18,6 +18,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     apiBaseUrl: "",
+    public: {
+      connector: "",
+    },
   },
 
   compatibilityDate: "2025-07-15",

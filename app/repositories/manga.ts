@@ -2,8 +2,10 @@ import type { $Fetch } from "nitropack/types";
 
 export function mangaRepository(fetch: $Fetch) {
   return {
-    search: async (query: string) => {
-      return tryCatch(fetch<MangaSearchResponse>(`/${query}`));
+    search: async (query: string, page = 1) => {
+      return tryCatch(fetch<MangaSearchResponse>(`/${query}`, {
+        query: { page },
+      }));
     },
 
     info: async (id: string) => {

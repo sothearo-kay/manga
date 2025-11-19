@@ -2,13 +2,15 @@ import type { FetchOptions } from "ofetch";
 import { mangaRepository } from "~/repositories";
 
 export default defineNuxtPlugin(() => {
+  const { connector } = useRuntimeConfig().public;
+
   const defaultHeaders = {
     "Content-Type": "application/json",
     "Accept": "application/json",
   };
 
   const fetchOptions: FetchOptions = {
-    baseURL: "/api/mangahere",
+    baseURL: `/api/${connector}`,
     onRequest({ options }) {
       options.headers = { ...defaultHeaders, ...options.headers };
     },
