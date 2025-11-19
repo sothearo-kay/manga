@@ -131,7 +131,7 @@ watch(data, (newData) => {
       </div>
 
       <div v-else>
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-6">
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-6">
           <NuxtLink
             v-for="manga in mangas"
             :key="manga.id"
