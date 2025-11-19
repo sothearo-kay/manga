@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SITE_DESCRIPTION, SITE_NAME } from "~/shared/constants";
+import { SITE_DESCRIPTION, SITE_NAME } from "#shared/constants";
 
 const url = useRequestURL();
 
