@@ -82,6 +82,51 @@ function getChapterNumber(chapter: MangaChapter) {
   const match = chapter.id.match(/c(\d+)/i);
   return match ? Number(match[1]) : 0;
 }
+
+const preloadedImages = new Map<string, HTMLImageElement>();
+
+watch([currentPageIndex, pages, readingMode], () => {
+  if (readingMode.value !== "manga" || !pages.value)
+    return;
+
+  const urlsToPreload = new Map<string, "high" | "low">([
+    [getPageUrl(currentPageIndex.value + 1), "high"], // Next page
+    [getPageUrl(currentPageIndex.value - 1), "low"], // Previous page
+    [getPageUrl(currentPageIndex.value + 2), "low"], // Page after next
+  ].filter(([url]) => url !== null) as [string, "high" | "low"][]);
+
+  // Remove unused preloaded images
+  preloadedImages.forEach((img, href) => {
+    if (!urlsToPreload.has(href)) {
+      img.src = "";
+      preloadedImages.delete(href);
+    }
+  });
+
+  // Add new preloaded images
+  urlsToPreload.forEach((priority, href) => {
+    if (!preloadedImages.has(href)) {
+      const img = new Image();
+      img.fetchPriority = priority;
+      img.src = href;
+      preloadedImages.set(href, img);
+    }
+  });
+}, { immediate: true });
+
+onUnmounted(() => {
+  preloadedImages.forEach((img) => {
+    img.src = "";
+  });
+  preloadedImages.clear();
+});
+
+function getPageUrl(index: number) {
+  const page = pages.value?.[index];
+  return page
+    ? `/api/image?url=${encodeURIComponent(page.img)}&referer=${encodeURIComponent(page.headerForImage.Referer)}`
+    : null;
+}
 </script>
 
 <template>
@@ -188,7 +233,7 @@ function getChapterNumber(chapter: MangaChapter) {
             :src="`/api/image?url=${encodeURIComponent(currentPage.img)}&referer=${encodeURIComponent(currentPage.headerForImage.Referer)}`"
             :alt="`Page ${currentPage.page}`"
             class="aspect-square h-full object-contain"
-            loading="lazy"
+            loading="eager"
           >
         </div>
 
